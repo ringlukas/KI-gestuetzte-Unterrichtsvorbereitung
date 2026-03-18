@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KI-gestützte Unterrichtsvorbereitung · FOSBOS</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --blue:#4950bc; --blue-d:#3740a0; --blue-l:#eef0fb; --blue-mid:#6b72d0;
+  --navy:#0d1117; --navy2:#161b22; --navy3:#1c2333;
+  --purple:#7c3aed; --purple-l:#ede9fe;
+  --green:#16a34a; --green-l:#dcfce7; --green-bg:#f0fdf4;
+  --yellow:#d97706; --yellow-l:#fef3c7;
+  --red:#dc2626; --red-l:#fee2e2; --red-bg:#fff5f5;
+  --teal:#0891b2; --teal-l:#cffafe;
+  --orange:#ea580c; --orange-l:#fff7ed;
+  --g50:#f8f9ff; --g100:#f1f2f9; --g200:#e2e4f0; --g300:#cbd0e8; --g500:#6b7280;
+  --text:#111827; --text-m:#374151; --text-s:#6b7280;
+  --r:14px; --rsm:9px; --rxl:20px;
+  --shadow:0 2px 16px rgba(0,0,0,.07);
+  --shadow-md:0 8px 32px rgba(0,0,0,.10);
+  --shadow-lg:0 16px 56px rgba(73,80,188,.15);
+}
+html { scroll-behavior: smooth; }
+body { font-family:'Inter',sans-serif; background:#fff; color:var(--text); -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+
+/* ── NAV ── */
+nav { position:sticky; top:0; z-index:200; background:rgba(255,255,255,.94); backdrop-filter:blur(20px); border-bottom:1px solid var(--g200); }
+.nav-i { max-width:1100px; margin:0 auto; padding:0 32px; display:flex; align-items:center; justify-content:space-between; height:58px; }
+.nav-brand { font-size:.85rem; font-weight:800; color:var(--blue); display:flex; align-items:center; gap:8px; text-decoration:none; }
+.nav-dot { width:7px; height:7px; background:var(--blue); border-radius:50%; }
+.nav-links { display:flex; gap:28px; }
+.nav-links a { font-size:.82rem; font-weight:500; color:var(--text-s); text-decoration:none; transition:color .15s; }
+.nav-links a:hover { color:var(--blue); }
+
+/* ── HERO ── */
+.hero {
+  background: #fff;
+  padding: 80px 40px 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--g200);
+}
+.hero-inner { max-width: 860px; margin: 0 auto; }
+.hero h1 {
+  font-size: clamp(2.4rem, 5vw, 3.8rem);
+  font-weight: 900; color: var(--text);
+  letter-spacing: -.035em; line-height: 1.08; margin-bottom: 20px;
+}
+.hero h1 em {
+  font-style: normal;
+  background: linear-gradient(135deg, var(--blue), #818cf8);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.hero-sub {
+  font-size: 1.1rem; color: var(--text-s);
+  max-width: 600px; margin: 0 auto 40px; line-height: 1.75;
+}
+.hero-stats {
+  display: flex; gap: 0; justify-content: center;
+  border: 1px solid var(--g200); border-radius: var(--r);
+  overflow: hidden; max-width: 640px; margin: 0 auto 56px;
+  background: var(--g50);
+}
+.hero-stat {
+  flex: 1; padding: 20px 16px; text-align: center;
+  border-right: 1px solid var(--g200);
+}
+.hero-stat:last-child { border-right: none; }
+.hero-stat .num { font-size: 2rem; font-weight: 900; color: var(--blue); letter-spacing: -.04em; line-height: 1; }
+.hero-stat .lbl { font-size: .72rem; color: var(--text-s); font-weight: 500; margin-top: 4px; text-transform: uppercase; letter-spacing: .05em; }
+.hero-img {
+  display: flex; justify-content: center; align-items: flex-end;
+  padding: 0 40px;
+  background: linear-gradient(180deg, #fff 0%, var(--g50) 100%);
+  border-top: 1px solid var(--g200); margin-top: 0;
+}
+.hero-pipeline {
+  display: flex; align-items: center; gap: 0;
+  padding: 20px 0 0;
+  max-width: 760px;
+}
+.hp-node {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 14px 20px;
+}
+.hp-icon { font-size: 1.4rem; }
+.hp-label { font-size: .72rem; font-weight: 700; color: var(--text-m); letter-spacing: .03em; text-align: center; }
+.hp-arrow { color: var(--g300); font-size: 1.1rem; flex-shrink: 0; }
+
+/* ── SECTIONS ── */
+.sec { padding: 88px 40px; }
+.sec-i { max-width: 1100px; margin: 0 auto; }
+.sec-gray { background: var(--g50); border-top: 1px solid var(--g200); border-bottom: 1px solid var(--g200); }
+.sec-dark { background: var(--navy); }
+.sec-blue { background: linear-gradient(135deg, var(--blue), #3730a3); }
+.chip { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--blue); background: var(--blue-l); padding: 4px 12px; border-radius: 100px; margin-bottom: 14px; }
+.chip-w { color: rgba(255,255,255,.6); background: rgba(255,255,255,.1); }
+h2 { font-size: clamp(1.7rem, 3vw, 2.4rem); font-weight: 800; letter-spacing: -.03em; color: var(--text); line-height: 1.15; margin-bottom: 12px; }
+h2.white { color: #fff; }
+.sub { font-size: .95rem; color: var(--text-s); max-width: 640px; line-height: 1.75; margin-bottom: 48px; }
+.sub.white { color: rgba(255,255,255,.6); }
+
+/* ── PROBLEM ── */
+.prob-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+.prob-card { background: #fff; border: 1.5px solid var(--g200); border-radius: var(--r); padding: 28px; text-align: center; box-shadow: var(--shadow); transition: transform .2s, box-shadow .2s; }
+.prob-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+.prob-card .p-icon { font-size: 2rem; margin-bottom: 14px; }
+.prob-equals { font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-s); margin: 8px 0; }
+.prob-card h3 { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.prob-card .p-result { font-size: .88rem; color: var(--red); font-weight: 700; }
+.prob-note { margin-top: 28px; padding: 18px 24px; background: var(--blue-l); border-radius: var(--r); border-left: 4px solid var(--blue); }
+.prob-note p { font-size: .9rem; color: var(--blue-d); line-height: 1.65; }
+.prob-note strong { font-weight: 800; }
+
+/* ── GLC ARC ── */
+.glc-arc-wrap { margin-bottom: 40px; }
+.glc-arc {
+  display: grid; grid-template-columns: 180px 1fr 1fr 1fr;
+  gap: 0; border-radius: var(--r); overflow: hidden;
+  border: 1.5px solid var(--g200); box-shadow: var(--shadow-md);
+}
+.glc-col { display: flex; flex-direction: column; }
+.glc-col + .glc-col { border-left: 1px solid var(--g200); }
+.glc-ph-head { padding: 20px 18px; text-align: center; }
+.glc-ph-e  { background: linear-gradient(160deg,#f3f0ff,#e9e5ff); }
+.glc-ph-a  { background: linear-gradient(160deg,#eff6ff,#dbeafe); }
+.glc-ph-b  { background: linear-gradient(160deg,#fefce8,#fde68a); }
+.glc-ph-c  { background: linear-gradient(160deg,#f0fdf4,#bbf7d0); }
+.glc-ph-letter { font-size: 1.6rem; font-weight: 900; opacity: .18; line-height: 1; margin-bottom: 2px; color: #000; }
+.glc-ph-name { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 4px; }
+.glc-ph-e .glc-ph-name { color: #6d28d9; }
+.glc-ph-a .glc-ph-name { color: #1d4ed8; }
+.glc-ph-b .glc-ph-name { color: #b45309; }
+.glc-ph-c .glc-ph-name { color: #15803d; }
+.glc-ph-title { font-size: .88rem; font-weight: 700; color: var(--text); }
+.glc-body { padding: 16px; flex: 1; background: #fff; display: flex; flex-direction: column; gap: 7px; }
+.glc-item { display: flex; align-items: flex-start; gap: 8px; font-size: .8rem; color: var(--text-m); line-height: 1.45; }
+.glc-item .gi-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.gi-e { background: #7c3aed; }
+.gi-a { background: #2563eb; }
+.gi-b { background: #d97706; }
+.gi-c { background: #16a34a; }
+.glc-footer { padding: 10px 16px; border-top: 1px solid var(--g100); background: var(--g50); }
+.glc-device { font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.glc-device.d-zu { color: var(--red); }
+.glc-device.d-auf { color: var(--green); }
+.glc-device.d-zuwahl { color: var(--yellow); }
+.glc-role { font-size: 10px; color: var(--text-s); margin-top: 2px; }
+.glc-axiom { margin-top: 16px; padding: 16px 20px; background: var(--navy); border-radius: var(--rsm); }
+.glc-axiom p { font-size: .88rem; color: rgba(255,255,255,.75); line-height: 1.65; }
+.glc-axiom strong { color: #fff; }
+
+/* ── 3 WERKZEUGE ── */
+.tools-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+.tool-card {
+  border-radius: var(--r); border: 1.5px solid var(--g200);
+  overflow: hidden; box-shadow: var(--shadow);
+  transition: transform .2s, box-shadow .2s;
+  cursor: default;
+}
+.tool-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.tool-head { padding: 24px 24px 20px; }
+.tool-lk .tool-head { background: linear-gradient(135deg,#1e1b4b,var(--blue)); }
+.tool-gamma .tool-head { background: linear-gradient(135deg,#4c1d95,#7c3aed); }
+.tool-ki .tool-head { background: linear-gradient(135deg,#0f172a,#1e293b); }
+.tool-chip { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; background: rgba(255,255,255,.15); color: rgba(255,255,255,.8); padding: 3px 9px; border-radius: 5px; margin-bottom: 12px; display: inline-block; }
+.tool-head h3 { font-size: 1.15rem; font-weight: 800; color: #fff; margin-bottom: 6px; }
+.tool-head p { font-size: .82rem; color: rgba(255,255,255,.6); line-height: 1.55; }
+.tool-body { padding: 20px 24px; background: #fff; }
+.tool-body ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.tool-body ul li { display: flex; align-items: flex-start; gap: 9px; font-size: .83rem; color: var(--text-m); line-height: 1.5; }
+.tool-body ul li::before { content: '✓'; font-weight: 700; flex-shrink: 0; font-size: .85rem; }
+.tool-lk ul li::before { color: var(--blue); }
+.tool-gamma ul li::before { color: var(--purple); }
+.tool-ki ul li::before { color: var(--text-s); }
+.tool-footer { padding: 12px 24px; border-top: 1px solid var(--g100); background: var(--g50); }
+.tool-tag { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 100px; }
+.tool-lk .tool-tag { background: var(--blue-l); color: var(--blue); }
+.tool-gamma .tool-tag { background: var(--purple-l); color: var(--purple); }
+.tool-ki .tool-tag { background: var(--g100); color: var(--text-s); }
+
+/* ── ZWEI UNTERRICHTSFORMATE ── */
+.glc-zwei { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
+.glc-zwei-card { border-radius: var(--rsm); overflow: hidden; border: 1.5px solid var(--g200); box-shadow: var(--shadow); }
+.glc-zwei-head { padding: 18px 22px 16px; }
+.glc-zwei-le .glc-zwei-head { background: linear-gradient(135deg, #1e1b4b, var(--blue)); }
+.glc-zwei-kt .glc-zwei-head { background: linear-gradient(135deg, #7c2d12, #ea580c); }
+.glc-zwei-badge { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; background: rgba(255,255,255,.2); color: rgba(255,255,255,.85); padding: 2px 9px; border-radius: 4px; margin-bottom: 10px; display: inline-block; }
+.glc-zwei-head h4 { font-size: 1rem; font-weight: 800; color: #fff; margin-bottom: 4px; }
+.glc-zwei-head p { font-size: .78rem; color: rgba(255,255,255,.6); line-height: 1.5; }
+.glc-zwei-body { padding: 14px 22px 18px; background: #fff; }
+.glc-zwei-body ul { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+.glc-zwei-body ul li { display: flex; align-items: flex-start; gap: 9px; font-size: .81rem; color: var(--text-m); line-height: 1.45; }
+.glc-zwei-le .glc-zwei-body ul li::before { content: '✓'; color: var(--blue); font-weight: 700; flex-shrink: 0; }
+.glc-zwei-kt .glc-zwei-body ul li::before { content: '✓'; color: var(--orange); font-weight: 700; flex-shrink: 0; }
+
+/* ── LERNKOMPASS PHASEN-MAP ── */
+.lk-map { margin-top: 14px; display: flex; flex-direction: column; gap: 5px; border: 1px solid var(--g200); border-radius: var(--rsm); overflow: hidden; }
+.lk-row { display: flex; align-items: center; gap: 0; font-size: .78rem; }
+.lk-row + .lk-row { border-top: 1px solid var(--g200); }
+.lk-phase { width: 28px; flex-shrink: 0; text-align: center; font-weight: 800; font-size: .8rem; padding: 7px 0; color: #fff; }
+.lk-phase-e { background: #7c3aed; }
+.lk-phase-a { background: #2563eb; }
+.lk-phase-b { background: #d97706; }
+.lk-phase-c { background: #16a34a; }
+.lk-field { padding: 7px 10px; color: var(--text-m); font-size: .77rem; line-height: 1.4; }
+.lk-map-label { font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-s); margin-top: 12px; margin-bottom: 4px; }
+
+/* ── KI WORKFLOW ── */
+.wf-intro {
+  display: grid; grid-template-columns: 1fr 340px; gap: 32px;
+  margin-bottom: 48px; align-items: center;
+}
+.wf-intro-text h3 { font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 10px; }
+.wf-intro-text p { font-size: .88rem; color: rgba(255,255,255,.55); line-height: 1.7; }
+.wf-vs { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); border-radius: var(--r); padding: 20px; }
+.wf-vs-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,.07); font-size: .8rem; }
+.wf-vs-row:last-child { border-bottom: none; }
+.wf-vs-no { color: rgba(255,255,255,.35); }
+.wf-vs-yes { color: #4ade80; font-weight: 600; }
+.wf-vs-title { font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,.3); margin-bottom: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; text-align: center; }
+/* Pipeline */
+.wf-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 28px; }
+.wf-leg { display: flex; align-items: center; gap: 7px; font-size: .78rem; color: rgba(255,255,255,.5); font-weight: 500; }
+.wf-leg-dot { width: 9px; height: 9px; border-radius: 3px; }
+.wf-flow { display: flex; flex-direction: column; align-items: center; gap: 0; }
+.wf-input {
+  background: rgba(255,255,255,.06); border: 1.5px solid rgba(255,255,255,.12);
+  border-radius: var(--r); padding: 18px 32px; text-align: center;
+  width: 100%; max-width: 560px;
+}
+.wf-input-lbl { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.35); margin-bottom: 9px; }
+.wf-pills { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.wf-pill { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12); border-radius: 100px; padding: 5px 13px; font-size: .8rem; color: rgba(255,255,255,.7); font-weight: 500; }
+.wf-arr { display: flex; flex-direction: column; align-items: center; height: 36px; }
+.wf-arr::before { content:''; width:2px; height:24px; background:rgba(255,255,255,.4); }
+.wf-arr::after { content:''; width:0; height:0; border-left:6px solid transparent; border-right:6px solid transparent; border-top:8px solid rgba(255,255,255,.45); }
+.wf-node { width:100%; max-width:680px; border-radius:var(--r); overflow:hidden; }
+.wf-nh { display:flex; align-items:center; gap:12px; padding:15px 20px; }
+.wf-nbadge { font-size:10px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; padding:3px 9px; border-radius:5px; background:rgba(255,255,255,.18); color:#fff; flex-shrink:0; }
+.wf-nt { font-size:.95rem; font-weight:700; color:#fff; }
+.wf-ns { font-size:.76rem; color:rgba(255,255,255,.6); margin-top:1px; }
+.wf-nb { padding:14px 20px 16px; border-top:1px solid rgba(255,255,255,.06); background:rgba(255,255,255,.03); }
+.wf-nb p { font-size:.83rem; line-height:1.65; color:rgba(255,255,255,.6); }
+.wf-nb strong { color:rgba(255,255,255,.9); }
+.wf-calls { display:flex; gap:7px; flex-wrap:wrap; margin-top:10px; }
+.wf-cpill { font-size:11px; font-weight:600; padding:3px 10px; border-radius:100px; border:1px solid rgba(73,80,188,.35); color:#818cf8; background:rgba(73,80,188,.15); }
+.n-blue2 { border:1.5px solid rgba(99,102,241,.4); } .n-blue2 .wf-nh { background:linear-gradient(135deg,rgba(73,80,188,.9),rgba(107,114,208,.9)); }
+.n-purple2 { border:1.5px solid rgba(124,58,237,.35); } .n-purple2 .wf-nh { background:linear-gradient(135deg,rgba(91,33,182,.9),rgba(124,58,237,.9)); }
+.n-teal2 { border:1.5px dashed rgba(8,145,178,.4); } .n-teal2 .wf-nh { background:linear-gradient(135deg,rgba(14,116,144,.85),rgba(8,145,178,.85)); }
+.n-orange2 { border:1.5px solid rgba(234,88,12,.4); } .n-orange2 .wf-nh { background:linear-gradient(135deg,rgba(154,52,18,.9),rgba(234,88,12,.9)); }
+.n-green2 { border:1.5px solid rgba(22,163,74,.35); } .n-green2 .wf-nh { background:linear-gradient(135deg,rgba(20,83,45,.9),rgba(22,163,74,.9)); }
+.n-out-g { border:1.5px solid rgba(109,40,217,.4); } .n-out-g .wf-nh { background:linear-gradient(135deg,rgba(76,29,149,.9),rgba(109,40,217,.9)); }
+.n-out-h { border:1.5px solid rgba(55,48,163,.4); } .n-out-h .wf-nh { background:linear-gradient(135deg,rgba(30,27,75,.95),rgba(55,48,163,.9)); }
+.wf-fork { display:grid; grid-template-columns:1fr 1fr; gap:16px; width:100%; }
+.wf-outputs { display:grid; grid-template-columns:1fr 1fr; gap:16px; width:100%; }
+.split-arr { display:flex; width:100%; height:44px; position:relative; align-items:flex-end; justify-content:space-around; }
+.split-arr::before { content:''; position:absolute; top:0; left:25%; right:25%; height:2px; background:rgba(255,255,255,.35); }
+.sarr { display:flex; flex-direction:column; align-items:center; }
+.sarr::before { content:''; width:2px; height:26px; background:rgba(255,255,255,.4); }
+.sarr::after { content:''; width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-top:7px solid rgba(255,255,255,.45); }
+.merge-arr { display:flex; width:100%; height:44px; position:relative; align-items:flex-start; justify-content:space-around; }
+.merge-arr::before { content:''; position:absolute; bottom:0; left:25%; right:25%; height:2px; background:rgba(255,255,255,.35); }
+.marr { display:flex; flex-direction:column; align-items:center; }
+.marr::before { content:''; width:2px; height:26px; background:rgba(255,255,255,.4); }
+.wf-go { background:rgba(255,255,255,.04); border:2px dashed rgba(99,102,241,.5); border-radius:var(--rsm); padding:11px 28px; font-size:.84rem; font-weight:700; color:#818cf8; letter-spacing:.04em; }
+.wf-opt-hint { display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:600; color:#22d3ee; background:rgba(8,145,178,.15); border:1px dashed rgba(8,145,178,.3); padding:3px 10px; border-radius:5px; margin-top:10px; }
+.flist { list-style:none; display:flex; flex-direction:column; gap:5px; }
+.flist li { display:flex; align-items:flex-start; gap:8px; font-size:.82rem; color:rgba(255,255,255,.6); line-height:1.5; }
+.flist li::before { content:'✓'; color:#4ade80; font-weight:700; flex-shrink:0; }
+
+/* ── CTA ── */
+.cta-box { max-width: 760px; margin: 0 auto; text-align: center; }
+.cta-box h2 { color: #fff; margin-bottom: 14px; }
+.cta-box p { font-size: .95rem; color: rgba(255,255,255,.6); line-height: 1.75; max-width: 520px; margin: 0 auto 36px; }
+.cta-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-bottom: 40px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 13px 26px; border-radius: var(--rsm); font-size: .88rem; font-weight: 700; text-decoration: none; transition: all .2s; cursor: pointer; border: none; font-family: inherit; }
+.btn-primary { background: #fff; color: var(--blue); }
+.btn-primary:hover { background: var(--blue-l); transform: translateY(-1px); }
+.btn-ghost { background: rgba(255,255,255,.08); color: rgba(255,255,255,.8); border: 1px solid rgba(255,255,255,.15); }
+.btn-ghost:hover { background: rgba(255,255,255,.12); }
+.cta-pilot { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; text-align: left; }
+.cta-pilot-card { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); border-radius: var(--rsm); padding: 18px; }
+.cta-pilot-card .cp-title { font-size: .82rem; font-weight: 700; color: #fff; margin-bottom: 6px; }
+.cta-pilot-card .cp-desc { font-size: .78rem; color: rgba(255,255,255,.5); line-height: 1.55; }
+
+/* ── FOOTER ── */
+footer { background: var(--navy); border-top: 1px solid rgba(255,255,255,.06); color: rgba(255,255,255,.3); text-align: center; padding: 32px 20px; font-size: .78rem; line-height: 2; }
+footer strong { color: rgba(255,255,255,.55); }
+
+/* ── FADE IN ── */
+.fade-in { opacity: 0; transform: translateY(20px); transition: opacity .55s ease, transform .55s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+@media (max-width: 860px) {
+  .sec { padding: 60px 20px; }
+  .prob-grid, .tools-grid, .wf-outputs, .wf-fork, .cta-pilot { grid-template-columns: 1fr; }
+  .glc-arc { grid-template-columns: 1fr 1fr; }
+  .glc-col:nth-child(3), .glc-col:nth-child(4) { border-top: 1px solid var(--g200); border-left: none; }
+  .glc-col:nth-child(3) { border-left: 1px solid var(--g200); }
+  .wf-node { max-width: 100%; }
+  .split-arr, .merge-arr { display: none; }
+  .nav-links { display: none; }
+  .wf-intro { grid-template-columns: 1fr; }
+  .hero { padding: 56px 20px 0; }
+  .hero-stats { max-width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-i">
+    <a class="nav-brand" href="#"><div class="nav-dot"></div> KI-Unterrichtsvorbereitung</a>
+    <div class="nav-links">
+      <a href="#problem">Das Problem</a>
+      <a href="#glc">Das Prinzip</a>
+      <a href="#werkzeuge">Die 3 Werkzeuge</a>
+      <a href="#workflow">KI-Workflow</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════ HERO ══════════ -->
+<div class="hero">
+  <div class="hero-inner">
+    <h1>KI-gestützte<br><em>Unterrichtsvorbereitung</em></h1>
+    <p class="hero-sub">Kein Prompt in ChatGPT. Ein vollständig automatisierter Workflow aus spezialisierten KI-Komponenten, gebaut auf einem evidenzbasierten didaktischen Modell.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num">81</div><div class="lbl">Schüler evaluiert</div></div>
+      <div class="hero-stat"><div class="num">4</div><div class="lbl">Klassen</div></div>
+      <div class="hero-stat"><div class="num">4</div><div class="lbl">Fächer</div></div>
+      <div class="hero-stat"><div class="num">8</div><div class="lbl">KI-Komponenten</div></div>
+    </div>
+  </div>
+  <div class="hero-img">
+    <div class="hero-pipeline">
+      <div class="hp-node"><span class="hp-icon">📚</span><span class="hp-label">Lehrplan · Abitur<br>Fachliteratur</span></div>
+      <span class="hp-arrow">→</span>
+      <div class="hp-node"><span class="hp-icon">🤖</span><span class="hp-label">KI-Workflow<br>(8 Komponenten)</span></div>
+      <span class="hp-arrow">→</span>
+      <div class="hp-node"><span class="hp-icon">🎴</span><span class="hp-label">Gamma-<br>Kartenset</span></div>
+      <span class="hp-arrow">+</span>
+      <div class="hp-node"><span class="hp-icon">📋</span><span class="hp-label">Lernkompass<br>für Schüler</span></div>
+      <span class="hp-arrow">+</span>
+      <div class="hp-node"><span class="hp-icon">📄</span><span class="hp-label">Lehrerhandbuch<br>im Browser</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PROBLEM ══════════ -->
+<section class="sec" id="problem">
+  <div class="sec-i fade-in">
+    <div class="chip">Was wir alle kennen</div>
+    <h2>Drei Probleme.<br>Ein System als Antwort.</h2>
+    <p class="sub">Tablets, heterogene Klassen, der Wunsch nach selbstständigem Arbeiten: In der Praxis führen sie oft ins Gegenteil. Das war der Ausgangspunkt.</p>
+    <div class="prob-grid">
+      <div class="prob-card">
+        <div class="p-icon">📱</div>
+        <h3>Tablets</h3>
+        <div class="prob-equals">führen zu</div>
+        <div class="p-result">Ablenkung</div>
+      </div>
+      <div class="prob-card">
+        <div class="p-icon">👥</div>
+        <h3>Heterogenität</h3>
+        <div class="prob-equals">führt zu</div>
+        <div class="p-result">Chaos</div>
+      </div>
+      <div class="prob-card">
+        <div class="p-icon">🎯</div>
+        <h3>Selbstständig arbeiten</h3>
+        <div class="prob-equals">wird zur</div>
+        <div class="p-result">Arbeitsillusion</div>
+      </div>
+    </div>
+    <div class="prob-note">
+      <p><strong>Die Lösung ist mehr Struktur, nicht weniger.</strong> Führung am Anfang schafft die Voraussetzung für echte Selbstständigkeit am Ende. Das ist das Kernprinzip des Guided Learning Cycle.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ GLC ══════════ -->
+<section class="sec sec-gray" id="glc">
+  <div class="sec-i fade-in">
+    <div class="chip">Das Grundprinzip</div>
+    <h2>Guided Learning Cycle</h2>
+    <p class="sub">Erst VERSTEHEN, dann ANWENDEN. Nicht gleichzeitig. Jede Phase hat klare Regeln: für Medien, Aufgaben und die Lehrerrolle.</p>
+    <div class="glc-arc-wrap">
+      <div class="glc-arc">
+
+        <div class="glc-col">
+          <div class="glc-ph-head glc-ph-e">
+            <div class="glc-ph-letter">E</div>
+            <div class="glc-ph-name">Einstieg</div>
+            <div class="glc-ph-title">Aktivierung</div>
+          </div>
+          <div class="glc-body">
+            <div class="glc-item"><div class="gi-dot gi-e"></div>Hook aus 3 Optionen</div>
+            <div class="glc-item"><div class="gi-dot gi-e"></div>Lernziele als Ich-kann-Sätze</div>
+            <div class="glc-item"><div class="gi-dot gi-e"></div>Advance Organizer + Brücke</div>
+            <div class="glc-item"><div class="gi-dot gi-e"></div>Metapher (optional)</div>
+          </div>
+          <div class="glc-footer">
+            <div class="glc-device d-zu">📵 Geräte: ZU</div>
+            <div class="glc-role">Lehrkraft führt vollständig</div>
+          </div>
+        </div>
+
+        <div class="glc-col">
+          <div class="glc-ph-head glc-ph-a">
+            <div class="glc-ph-letter">A</div>
+            <div class="glc-ph-name">Strukturierter Input</div>
+            <div class="glc-ph-title">Verstehen aufbauen</div>
+          </div>
+          <div class="glc-body">
+            <div class="glc-item"><div class="gi-dot gi-a"></div>1 bis 4 Chunks, gemeinsam erarbeitet</div>
+            <div class="glc-item"><div class="gi-dot gi-a"></div>Sicherungsfenster (2 bis 3 Min.) nach jedem Chunk</div>
+            <div class="glc-item"><div class="gi-dot gi-a"></div>Mini-Checks als aktive Ankerpunkte</div>
+            <div class="glc-item"><div class="gi-dot gi-a"></div>Zuhören und aktives Mitarbeiten wechseln sich ab</div>
+          </div>
+          <div class="glc-footer">
+            <div class="glc-device d-zuwahl">🔄 Geräte: ZU/AUF (nur Sicherungsfenster)</div>
+            <div class="glc-role">Lehrkraft führt, erklärt</div>
+          </div>
+        </div>
+
+        <div class="glc-col">
+          <div class="glc-ph-head glc-ph-b">
+            <div class="glc-ph-letter">B</div>
+            <div class="glc-ph-name">Geführte Anwendung</div>
+            <div class="glc-ph-title">Prozesse anwenden</div>
+          </div>
+          <div class="glc-body">
+            <div class="glc-item"><div class="gi-dot gi-b"></div>Leitfall, regional verankert</div>
+            <div class="glc-item"><div class="gi-dot gi-b"></div>BASIS · STANDARD · CHALLENGE</div>
+            <div class="glc-item"><div class="gi-dot gi-b"></div>Hilfekarte + Satzstarter</div>
+            <div class="glc-item"><div class="gi-dot gi-b"></div>3 gestufte Lösungskarten</div>
+          </div>
+          <div class="glc-footer">
+            <div class="glc-device d-auf">✅ Geräte: AUF</div>
+            <div class="glc-role">Lehrkraft unterstützt</div>
+          </div>
+        </div>
+
+        <div class="glc-col">
+          <div class="glc-ph-head glc-ph-c">
+            <div class="glc-ph-letter">C</div>
+            <div class="glc-ph-name">Konsolidierung</div>
+            <div class="glc-ph-title">Auswertung &amp; Transfer</div>
+          </div>
+          <div class="glc-body">
+            <div class="glc-item"><div class="gi-dot gi-c"></div>Fehler-Radar: typische Denkmuster aufdecken</div>
+            <div class="glc-item"><div class="gi-dot gi-c"></div>Exit Ticket (2 bis 3 Items)</div>
+            <div class="glc-item"><div class="gi-dot gi-c"></div>Brücke zur nächsten Einheit</div>
+            <div class="glc-item"><div class="gi-dot gi-c"></div>Micro-Prep für zuhause</div>
+          </div>
+          <div class="glc-footer">
+            <div class="glc-device d-zuwahl">🔄 Geräte: ZU/AUF</div>
+            <div class="glc-role">Lehrkraft zieht sich zurück</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="glc-axiom">
+      <p>💡 <strong>Grundprinzip:</strong> Erst verstehen, dann anwenden. Nicht gleichzeitig. Volle Führung am Anfang ist die Voraussetzung für echte Selbstständigkeit am Ende. Wer Schüler zu früh alleine lässt, produziert Beschäftigung statt Lernen.</p>
+    </div>
+
+    <p style="font-size:.88rem; color:var(--text-s); margin-bottom:14px; margin-top:20px;">Das System unterscheidet zwei Einheitentypen, die sich gegenseitig ergänzen:</p>
+    <div class="glc-zwei">
+      <div class="glc-zwei-card glc-zwei-le">
+        <div class="glc-zwei-head">
+          <span class="glc-zwei-badge">Lerneinheit</span>
+          <h4>Thema verstehen</h4>
+          <p>Neuen Stoff erschließen, Konzepte aufbauen</p>
+        </div>
+        <div class="glc-zwei-body">
+          <ul>
+            <li>Vollständiger Guided Learning Cycle</li>
+            <li>Differenzierung BASIS / STANDARD / CHALLENGE</li>
+            <li>Scaffolding und Hilfekarten</li>
+            <li>Fehler-Radar zur gemeinsamen Reflexion</li>
+          </ul>
+        </div>
+      </div>
+      <div class="glc-zwei-card glc-zwei-kt">
+        <div class="glc-zwei-head">
+          <span class="glc-zwei-badge">Kompetenztraining</span>
+          <h4>Prüfungsfit werden</h4>
+          <p>Vorbereitung auf Leistungsnachweis und Abschlussprüfung</p>
+        </div>
+        <div class="glc-zwei-body">
+          <ul>
+            <li>Prüfungsbedingungen konsequent simulieren</li>
+            <li>Echte Aufgaben aus vergangenen Prüfungen</li>
+            <li>Kein Scaffolding, alle SuS gleiche Aufgabe</li>
+            <li>Ausführlicher Fehler-Radar im Anschluss</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 3 WERKZEUGE ══════════ -->
+<section class="sec" id="werkzeuge">
+  <div class="sec-i fade-in">
+    <div class="chip">Die 3 Werkzeuge</div>
+    <h2>Drei Tools. Ein System.</h2>
+    <p class="sub">Diese drei Tools machen strukturierten Unterricht umsetzbar, nicht nur theoretisch schön. Sie sind die praktische Grundlage für den Guided Learning Cycle.</p>
+    <div class="tools-grid">
+
+      <div class="tool-card tool-lk">
+        <div class="tool-head">
+          <div class="tool-chip">Schülerwerkzeug</div>
+          <h3>Lernkompass</h3>
+          <p>Wiederverwendbare Struktur statt Einweg-Arbeitsblätter. Jede Phase hat ihr eigenes Feld.</p>
+        </div>
+        <div class="tool-body">
+          <ul>
+            <li>Schüler wissen immer, wo sie gerade stehen</li>
+            <li>Sicherungsfenster in Phase A direkt eingebaut</li>
+            <li>Fehler-Radar und Exit Ticket als feste Felder</li>
+            <li>Auch als PWA-App verfügbar (iOS/Android)</li>
+          </ul>
+          <p class="lk-map-label">Felder im Lernkompass</p>
+          <div class="lk-map">
+            <div class="lk-row"><span class="lk-phase lk-phase-e">E</span><span class="lk-field">Check-in · Lernziele</span></div>
+            <div class="lk-row"><span class="lk-phase lk-phase-a">A</span><span class="lk-field">Kern-Input (pro Chunk ein Feld)</span></div>
+            <div class="lk-row"><span class="lk-phase lk-phase-b">B</span><span class="lk-field">Anwendung · Lösungsweg</span></div>
+            <div class="lk-row"><span class="lk-phase lk-phase-c">C</span><span class="lk-field">Fehler-Radar · Exit Ticket</span></div>
+          </div>
+        </div>
+        <div class="tool-footer">
+          <span class="tool-tag">📋 A4 · 2-seitig</span>
+          <span class="tool-tag" style="margin-left:6px;">📱 App</span>
+        </div>
+      </div>
+
+      <div class="tool-card tool-gamma">
+        <div class="tool-head">
+          <div class="tool-chip">Präsentations-Tool</div>
+          <h3>Gamma</h3>
+          <p>Schnelle Materialerstellung: professionelle Folien in Minuten statt Stunden.</p>
+        </div>
+        <div class="tool-body">
+          <ul>
+            <li>Visualisierungen, Aufgaben, klare Strukturen</li>
+            <li>Kein Formatierungswahnsinn mehr</li>
+            <li>FOSBOS-Theme automatisch angewendet</li>
+            <li>Label-Badges: AKTIVIERUNG, INPUT-CHUNK, MINI-CHECK ...</li>
+            <li>Direkt vom KI-Workflow hochgeladen, kein Copy-Paste</li>
+          </ul>
+        </div>
+        <div class="tool-footer">
+          <span class="tool-tag">📎 Schülermaterial direkt im Deck</span>
+        </div>
+      </div>
+
+      <div class="tool-card tool-ki">
+        <div class="tool-head">
+          <div class="tool-chip">KI-Workflow</div>
+          <h3>KI-Unterstützung</h3>
+          <p>Differenzierung praktikabel machen: automatisch, vollständig, fachlich korrekt.</p>
+        </div>
+        <div class="tool-body">
+          <ul>
+            <li>Generiert automatisch 3 Niveaus (BASIS / STANDARD / CHALLENGE)</li>
+            <li>Liest Lehrplan und Abituraufgaben automatisch</li>
+            <li>Fachcheck vor dem GO: kein halluzinierter Output</li>
+            <li>8 spezialisierte Komponenten (Skills, Agents, APIs)</li>
+            <li>Kein Prompt in ChatGPT, ein echtes Automatisierungssystem</li>
+          </ul>
+        </div>
+        <div class="tool-footer">
+          <span class="tool-tag">🤖 8 Komponenten</span>
+          <span class="tool-tag" style="margin-left:6px;">↓ Details unten</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ KI WORKFLOW ══════════ -->
+<section class="sec sec-dark" id="workflow">
+  <div class="sec-i">
+    <div class="chip chip-w">Das steckt wirklich dahinter</div>
+    <h2 class="white">Der KI-Workflow im Detail</h2>
+    <p class="sub white">8 spezialisierte Komponenten arbeiten zusammen. Kein generischer Chatbot, sondern ein System das den Lehrplan kennt, Abituraufgaben analysiert und fachlich prüft.</p>
+
+    <div class="wf-intro fade-in">
+      <div class="wf-intro-text">
+        <h3>Nicht ChatGPT. Ein System.</h3>
+        <p>Ein einzelner Prompt in ChatGPT liefert generischen Output ohne Lehrplanbezug, ohne Differenzierung, ohne fachliche Prüfung. Dieser Workflow koordiniert 8 spezialisierte Komponenten, jede mit einer eigenen Aufgabe, alle auf das bayerische Schulsystem ausgerichtet.</p>
+      </div>
+      <div class="wf-vs">
+        <div class="wf-vs-title"><span>Einzelner Prompt</span><span>Dieser Workflow</span></div>
+        <div class="wf-vs-row"><span class="wf-vs-no">❌ Kein Lehrplanbezug</span><span class="wf-vs-yes">✓ Lehrplan gelesen</span></div>
+        <div class="wf-vs-row"><span class="wf-vs-no">❌ Kein Abitur-Check</span><span class="wf-vs-yes">✓ FAP gescannt</span></div>
+        <div class="wf-vs-row"><span class="wf-vs-no">❌ Keine Fachprüfung</span><span class="wf-vs-yes">✓ Fachcheck-Agent</span></div>
+        <div class="wf-vs-row"><span class="wf-vs-no">❌ Copy-Paste nötig</span><span class="wf-vs-yes">✓ Auto-Upload Gamma</span></div>
+        <div class="wf-vs-row"><span class="wf-vs-no">❌ Kein Kontext morgen</span><span class="wf-vs-yes">✓ Persistentes Gedächtnis</span></div>
+      </div>
+    </div>
+
+    <div class="wf-legend fade-in">
+      <div class="wf-leg"><div class="wf-leg-dot" style="background:#6366f1"></div>Skill (Orchestrator)</div>
+      <div class="wf-leg"><div class="wf-leg-dot" style="background:#7c3aed"></div>Agent (autonomer Subprozess)</div>
+      <div class="wf-leg"><div class="wf-leg-dot" style="background:#ea580c"></div>API (externe Schnittstelle)</div>
+      <div class="wf-leg"><div class="wf-leg-dot" style="background:#0891b2; outline:2px dashed #0891b2; outline-offset:1px"></div>Optional</div>
+      <div class="wf-leg"><div class="wf-leg-dot" style="background:#16a34a"></div>Gedächtnis (persistent)</div>
+    </div>
+
+    <div class="wf-flow fade-in">
+
+      <div class="wf-input">
+        <div class="wf-input-lbl">Eingabe durch Lehrkraft</div>
+        <div class="wf-pills">
+          <span class="wf-pill">📚 Fach + Lernbereich</span>
+          <span class="wf-pill">🔗 URL / Artikel</span>
+          <span class="wf-pill">📋 beides</span>
+        </div>
+      </div>
+      <div class="wf-arr"></div>
+
+      <!-- 1: Didaktik-Skill -->
+      <div class="wf-node n-blue2">
+        <div class="wf-nh"><span class="wf-nbadge">Super-Skill</span><div><div class="wf-nt">① Didaktik-Skill — das Gehirn des Systems</div><div class="wf-ns">Lehrplan lesen · Abitur-Frequenz-Check · Hook-Generator · Konzeptvorschlag</div></div></div>
+        <div class="wf-nb">
+          <p>Das zentrale Steuerelement des gesamten Workflows. Als einzige Komponente koordiniert er alle anderen vollständig: vom Lehrplan-Lesen über den Fachcheck bis zum fertigen Gamma-Upload. Liest Lehrplan-PDFs aller Fächer und scannt aktuelle Abituraufgaben. Analysiert: Kommt dieses Thema im FAP vor? Wie häufig? Daraus folgt: <strong>Rechenschema-Drilling JA oder NEIN</strong>. Generiert 3 Hook-Optionen, regional verankerten Leitfall, vollständige Differenzierung. Wartet auf <strong>GO</strong> der Lehrkraft.</p>
+          <div class="wf-calls">
+            <span class="wf-cpill">→ Recherche-Agent</span>
+            <span class="wf-cpill">→ Fachcheck-Agent</span>
+            <span class="wf-cpill">→ Grafiken-Skill (opt.)</span>
+            <span class="wf-cpill">→ Kartenset-Agent</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fork -->
+      <div class="split-arr"><div class="sarr"></div><div class="sarr"></div></div>
+      <div class="wf-fork">
+        <div class="wf-node n-purple2">
+          <div class="wf-nh"><span class="wf-nbadge">Agent</span><div><div class="wf-nt">② Recherche-Agent</div><div class="wf-ns">bei Thema ohne URL · auch zur laufenden Literaturrecherche</div></div></div>
+          <div class="wf-nb"><p>Sucht <strong>3 bis 5 passende Quellen parallel</strong>: aktuelle Artikel, Fachliteratur, statistische Daten. Bewertet didaktische Eignung, extrahiert Schlüsselzahlen und Aktualität. Empfiehlt die beste Quelle und verwirft ungeeignete. Kann auch unabhängig von einer konkreten Anfrage passende Materialien zu einem Thema zusammenstellen.</p></div>
+        </div>
+        <div class="wf-node n-purple2">
+          <div class="wf-nh"><span class="wf-nbadge">Agent</span><div><div class="wf-nt">③ Fachcheck-Agent</div><div class="wf-ns">immer aktiv · vor dem GO</div></div></div>
+          <div class="wf-nb"><p>Prüft das Konzept auf <strong>fachliche Vollständigkeit</strong>: fehlende Inhalte, falsche Begriffe, LN-Relevanz. Bewertet jeden Punkt als HOCH / MITTEL / NIEDRIG. Das Konzept wird angepasst, bevor GO abgefragt wird.</p></div>
+        </div>
+      </div>
+      <div class="merge-arr"><div class="marr"></div><div class="marr"></div></div>
+      <div class="wf-arr"></div>
+
+      <!-- Optional: Grafiken -->
+      <div class="wf-node n-teal2">
+        <div class="wf-nh"><span class="wf-nbadge">Optional · Skill</span><div><div class="wf-nt">④ Unterrichts-Grafiken-Skill</div><div class="wf-ns">bei Grafikbedarf im Konzept · für alle Fächer</div></div></div>
+        <div class="wf-nb">
+          <p>Erstellt <strong>professionelle SVG-Grafiken</strong>: Angebot-Nachfrage-Diagramme, Elastizitätskurven, Metaphernbilder, Strukturdiagramme. Konvertiert automatisch zu PNG für den direkten Gamma-Upload. Wird vom Didaktik-Skill aufgerufen, wenn das Konzept Grafikbedarf erkennt.</p>
+          <div class="wf-opt-hint">⋯ nur aufgerufen wenn Konzept Grafikbedarf erkannt hat</div>
+        </div>
+      </div>
+      <div class="wf-arr"></div>
+
+      <!-- GO -->
+      <div class="wf-go">▶ GO — Lehrkraft bestätigt das Konzept</div>
+      <div class="wf-arr"></div>
+
+      <!-- Kartenset-Agent -->
+      <div class="wf-node n-purple2">
+        <div class="wf-nh"><span class="wf-nbadge">Agent</span><div><div class="wf-nt">⑤ Gamma-Kartenset-Agent</div><div class="wf-ns">nach GO · vollständiger Guided Learning Cycle</div></div></div>
+        <div class="wf-nb"><p>Generiert ein vollständiges Kartenset in der richtigen Phasenreihenfolge: Einstieg, Strukturierter Input (bis 4 Chunks mit Mini-Checks), Geführte Anwendung (Leitfall mit Differenzierung und Lösungskarten), Konsolidierung mit Fehler-Radar. <strong>Alle Strukturhinweise als Label-Badges</strong>, Infomaterial-Karten als Schülerdokument direkt im Deck eingebettet.</p></div>
+      </div>
+      <div class="wf-arr"></div>
+
+      <!-- Gamma API -->
+      <div class="wf-node n-orange2">
+        <div class="wf-nh"><span class="wf-nbadge">API</span><div><div class="wf-nt">⑥ Gamma API — vollautomatischer Upload</div><div class="wf-ns">FOSBOS-Theme · Label-Badges automatisch · sofortiger Link · kein Copy-Paste</div></div></div>
+        <div class="wf-nb"><p>Das Kartenset wird <strong>direkt via Gamma API hochgeladen</strong>. Das FOSBOS-Theme wird automatisch angewendet, Label-Badges werden auf jeder Karte korrekt platziert. Keine manuelle Nachbearbeitung. Ergebnis: fertiger Gamma-Link in Sekunden.</p></div>
+      </div>
+      <div class="wf-arr"></div>
+
+      <!-- Lehrerhandbuch -->
+      <div class="wf-node n-blue2">
+        <div class="wf-nh"><span class="wf-nbadge">Skill</span><div><div class="wf-nt">⑦ Lehrerhandbuch-Skill</div><div class="wf-ns">nach Gamma-Upload · HTML · im Browser abrufbar</div></div></div>
+        <div class="wf-nb">
+          <p>Erstellt eine <strong>HTML-Datei für die Lehrkraft</strong>, direkt im Browser abrufbar, ohne Login und ohne App-Download. Vollständiger Stundenverlaufsplan mit Kartennummern, Musterlösungen (standardmäßig verborgen, per Klick öffenbar), Fehler-Radar mit WARUM-Block, Satzstarter, Impulsfragen, Differenzierungshinweise.</p>
+          <div class="wf-calls"><span class="wf-cpill">→ Direkt geschrieben</span><span class="wf-cpill">→ Browser-Aufruf</span></div>
+        </div>
+      </div>
+
+      <!-- Split von Node 7 zu beiden Outputs -->
+      <div class="split-arr"><div class="sarr"></div><div class="sarr"></div></div>
+
+      <!-- Outputs -->
+      <div class="wf-outputs">
+        <div class="wf-node n-out-g">
+          <div class="wf-nh"><span class="wf-nbadge">Output</span><div><div class="wf-nt">🎴 Gamma-Kartenset</div><div class="wf-ns">Beamer · für Schüler sichtbar</div></div></div>
+          <div class="wf-nb"><ul class="flist"><li>Nach dem Guided Learning Cycle strukturiert</li><li>AKTIVIERUNG, INPUT-CHUNK, MINI-CHECK als Badges</li><li>BASIS / STANDARD / CHALLENGE im 3-Spalten-Layout</li><li>INFOMATERIAL-Karten als Schülerdokument im Deck</li></ul></div>
+        </div>
+        <div class="wf-node n-out-h">
+          <div class="wf-nh"><span class="wf-nbadge">Output</span><div><div class="wf-nt">📄 HTML-Lehrerhandbuch</div><div class="wf-ns">Browser · nur für Lehrkraft</div></div></div>
+          <div class="wf-nb"><ul class="flist"><li>Stundenverlauf mit Zeiten und Kartennummern</li><li>Alle Lösungen, standardmäßig verborgen</li><li>Fehler-Radar: WARUM machen SuS diesen Fehler?</li><li>Satzstarter, Impulsfragen, Differenzierungshinweise</li></ul></div>
+        </div>
+      </div>
+      <div class="wf-arr"></div>
+
+      <!-- Memory -->
+      <div class="wf-node n-green2">
+        <div class="wf-nh"><span class="wf-nbadge">Gedächtnis</span><div><div class="wf-nt">⑧ Persistentes Gedächtnis-System</div><div class="wf-ns">automatisch aktualisiert · kein Kontextverlust zwischen Sessions</div></div></div>
+        <div class="wf-nb"><p>Nach jeder Session wird der Projektstand automatisch gesichert: <strong>Gamma-Links, Leitfall-Zahlen, Sequenz-Arc-Fortschritt, offene Baustellen</strong>. Beim nächsten Chat wird der Stand automatisch geladen. Das System weiß, wo es aufgehört hat. Kein Neustart von null.</p></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ CTA ══════════ -->
+<section class="sec sec-blue">
+  <div class="sec-i">
+    <div class="cta-box fade-in">
+      <div class="chip chip-w">Lust, es auszuprobieren?</div>
+      <h2>8-Wochen-Pilot für interessierte Lehrkräfte</h2>
+      <p>Ich starte nach den Ferien einen Pilot mit interessierten Kollegen. Ich teile alle Materialien inklusive Anleitungen. Kein Druck, einfach ausprobieren.</p>
+      <div class="cta-btns">
+        <a href="https://tally.so/r/OD0dpa" target="_blank" class="btn btn-primary">📬 Neugierig? Unverbindlich informieren</a>
+        <a href="https://pilotprojekt-ring-xu6vvgk.gamma.site/" target="_blank" class="btn btn-ghost">🔗 Zum Gamma-Informationsportal</a>
+      </div>
+      <div class="cta-pilot">
+        <div class="cta-pilot-card">
+          <div class="cp-title">⚡ Quick-Start möglich</div>
+          <div class="cp-desc">Startet direkt nach den Ferien, mit fertigen Vorlagen und klarer Anleitung. Kein technisches Vorwissen nötig.</div>
+        </div>
+        <div class="cta-pilot-card">
+          <div class="cp-title">📦 Materialien teilen</div>
+          <div class="cp-desc">Lernkompass-Vorlagen, Gamma-Links, KI-Workflow: alles sofort einsetzbar und auf das eigene Fach anpassbar.</div>
+        </div>
+        <div class="cta-pilot-card">
+          <div class="cp-title">👥 Austausch in kleiner Gruppe</div>
+          <div class="cp-desc">1 bis 5 Kollegen, regelmäßiger Austausch, gegenseitige Unterstützung. Keine Verpflichtung.</div>
+        </div>
+      </div>
+      <p style="font-size:.82rem; color:rgba(255,255,255,.4); margin-top:28px; line-height:1.7; max-width:600px; margin-left:auto; margin-right:auto;">
+        Das System ist modular. Jeder Baustein lässt sich unabhängig einsetzen: nur der Lernkompass, nur Gamma, nur der KI-Workflow. Der GLC ist das Modell, das hier verwendet wird. Andere didaktische Ansätze passen genauso.
+      </p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <strong>KI-gestützte Unterrichtsvorbereitung</strong> · FOSBOS Ingolstadt<br>
+  Evaluiert mit 81 Schülern aus 4 Klassen · 2026
+</footer>
+
+<script>
+// Fade-in on scroll
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+}, { threshold: 0.08 });
+document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
