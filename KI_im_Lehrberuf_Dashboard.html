@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KI im Lehrberuf: Daten statt Meinungen</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #f0f2fa;
+    --bg2: #ffffff;
+    --bg3: #eef0fb;
+    --border: #dde1f0;
+    --blue: #4950bc;
+    --blue-glow: rgba(73,80,188,0.10);
+    --teal: #0d9488;
+    --orange: #c2570a;
+    --red: #dc2626;
+    --green: #15803d;
+    --yellow: #b45309;
+    --text: #1a1a2e;
+    --muted: #5a6480;
+    --card-radius: 14px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex; align-items: center; gap: 0;
+  }
+  .nav-logo {
+    font-size: 13px; font-weight: 800; letter-spacing: .05em;
+    color: var(--blue); text-transform: uppercase;
+    padding: 18px 0; margin-right: 32px; white-space: nowrap;
+  }
+  .nav-tabs {
+    display: flex; gap: 0; flex: 1;
+  }
+  .nav-tab {
+    padding: 18px 18px; cursor: pointer;
+    font-size: 13px; font-weight: 600; color: var(--muted);
+    border-bottom: 2px solid transparent;
+    transition: all .2s; white-space: nowrap;
+  }
+  .nav-tab:hover { color: var(--text); }
+  nav { box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+  .nav-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+  .nav-badge {
+    display: inline-block; background: var(--red);
+    color: #fff; font-size: 10px; font-weight: 800;
+    padding: 1px 5px; border-radius: 4px; margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  /* ── SECTIONS ── */
+  .section { display: none; padding: 32px 24px; max-width: 1200px; margin: 0 auto; }
+  .section.active { display: block; }
+
+  /* ── HERO ── */
+  .hero {
+    text-align: center; padding: 48px 24px 32px;
+    border-bottom: 1px solid var(--border); margin-bottom: 40px;
+  }
+  .hero-eyebrow {
+    font-size: 11px; font-weight: 800; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--blue); margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-size: clamp(26px, 4vw, 42px); font-weight: 900;
+    line-height: 1.15; color: var(--text); margin-bottom: 16px;
+  }
+  .hero h1 span { color: var(--blue); }
+  .hero p {
+    font-size: 16px; color: var(--muted); max-width: 600px;
+    margin: 0 auto 32px;
+  }
+
+  /* ── STAT CARDS ── */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px; margin-bottom: 40px;
+  }
+  .stat-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--card-radius); padding: 20px;
+    text-align: center; transition: border-color .2s;
+  }
+  .stat-card:hover { border-color: var(--blue); }
+  .stat-card .stat-num {
+    font-size: 36px; font-weight: 900; line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-card .stat-label {
+    font-size: 12px; color: var(--muted); line-height: 1.4;
+  }
+  .stat-card .stat-source {
+    font-size: 10px; color: #9aa0bc; margin-top: 8px;
+  }
+  .c-blue { color: var(--blue); }
+  .c-teal { color: var(--teal); }
+  .c-orange { color: var(--orange); }
+  .c-red { color: var(--red); }
+  .c-green { color: var(--green); }
+  .c-yellow { color: var(--yellow); }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--card-radius); padding: 24px;
+    margin-bottom: 20px;
+  }
+  .card h2 {
+    font-size: 16px; font-weight: 800; margin-bottom: 6px; color: var(--text);
+  }
+  .card h3 {
+    font-size: 13px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .08em; margin-bottom: 16px;
+  }
+  .card p { color: var(--muted); font-size: 13px; margin-bottom: 10px; }
+
+  /* ── CHART WRAPPER ── */
+  .chart-wrap {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--card-radius); padding: 24px; margin-bottom: 24px;
+  }
+  .chart-wrap h2 {
+    font-size: 16px; font-weight: 800; color: var(--text); margin-bottom: 4px;
+  }
+  .chart-wrap .subtitle {
+    font-size: 12px; color: var(--muted); margin-bottom: 20px;
+  }
+  .chart-toggle {
+    display: flex; gap: 8px; margin-bottom: 20px;
+  }
+  .toggle-btn {
+    padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border);
+    background: transparent; color: var(--muted); font-size: 12px;
+    font-weight: 600; cursor: pointer; transition: all .2s;
+  }
+  .toggle-btn.active {
+    background: var(--blue); border-color: var(--blue); color: #fff;
+  }
+
+  /* ── PROGRESS BARS ── */
+  .task-list { display: flex; flex-direction: column; gap: 12px; }
+  .task-row { display: grid; grid-template-columns: 200px 1fr 60px 60px; gap: 12px; align-items: center; }
+  .task-row:first-child { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; padding-bottom: 4px; border-bottom: 1px solid var(--border); }
+  .task-name { font-size: 13px; color: var(--text); }
+  .bar-wrap { background: var(--bg3); border-radius: 4px; height: 8px; overflow: hidden; position: relative; }
+  .bar-now { position: absolute; left: 0; top: 0; height: 100%; border-radius: 4px; background: var(--blue); transition: width 1s ease; }
+  .bar-future { position: absolute; left: 0; top: 0; height: 100%; border-radius: 4px; background: var(--orange); opacity: 0.4; transition: width 1s ease; }
+  .pct { font-size: 12px; font-weight: 700; text-align: right; }
+  .task-tag {
+    display: inline-block; font-size: 10px; font-weight: 700;
+    padding: 2px 6px; border-radius: 4px; margin-top: 2px;
+  }
+  .tag-high { background: rgba(248,113,113,0.15); color: var(--red); }
+  .tag-med  { background: rgba(251,146,60,0.15);  color: var(--orange); }
+  .tag-low  { background: rgba(74,222,128,0.15);  color: var(--green); }
+
+  /* ── TIMELINE ── */
+  .timeline { position: relative; padding-left: 32px; }
+  .timeline::before {
+    content: ''; position: absolute; left: 10px; top: 0; bottom: 0;
+    width: 2px; background: var(--border);
+  }
+  .tl-item {
+    position: relative; margin-bottom: 28px;
+  }
+  .tl-dot {
+    position: absolute; left: -26px; top: 4px;
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 2px solid var(--bg2);
+  }
+  .tl-year {
+    font-size: 11px; font-weight: 800; letter-spacing: .08em;
+    text-transform: uppercase; margin-bottom: 4px;
+  }
+  .tl-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .tl-desc { font-size: 12px; color: var(--muted); }
+  .tl-source { font-size: 10px; color: #9aa0bc; margin-top: 4px; }
+  .tl-highlight {
+    display: inline-block; background: var(--blue-glow);
+    border: 1px solid var(--blue); border-radius: 6px;
+    padding: 2px 8px; font-size: 11px; color: var(--blue);
+    font-weight: 700; margin-top: 4px;
+  }
+
+  /* ── STUDY CARDS ── */
+  .study-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px; margin-bottom: 24px;
+  }
+  .study-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--card-radius); padding: 20px;
+    transition: border-color .2s; cursor: pointer;
+  }
+  .study-card:hover { border-color: var(--blue); }
+  .study-header {
+    display: flex; justify-content: space-between;
+    align-items: flex-start; margin-bottom: 10px;
+  }
+  .study-org {
+    font-size: 10px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: .1em; padding: 3px 8px; border-radius: 5px;
+  }
+  .study-year { font-size: 11px; color: var(--muted); }
+  .study-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .study-finding { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+  .study-stat {
+    font-size: 22px; font-weight: 900; margin-bottom: 2px;
+  }
+  .study-stat-label { font-size: 11px; color: var(--muted); }
+  .study-detail {
+    display: none; font-size: 12px; color: var(--muted);
+    margin-top: 12px; padding-top: 12px;
+    border-top: 1px solid var(--border); line-height: 1.7;
+  }
+  .study-card.open .study-detail { display: block; }
+
+  /* ── HUMAN SKILLS ── */
+  .human-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+  }
+  .human-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--card-radius); padding: 20px;
+  }
+  .human-icon { font-size: 28px; margin-bottom: 10px; }
+  .human-title { font-size: 14px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+  .human-desc { font-size: 12px; color: var(--muted); line-height: 1.6; }
+  .human-why {
+    margin-top: 10px; font-size: 11px; color: var(--blue);
+    font-weight: 600;
+  }
+
+  /* ── QUOTE ── */
+  .quote-block {
+    border-left: 3px solid var(--blue); padding: 16px 20px;
+    background: var(--bg3); border-radius: 0 8px 8px 0; margin: 20px 0;
+  }
+  .quote-text { font-size: 15px; font-style: italic; color: var(--text); margin-bottom: 8px; line-height: 1.7; }
+  .quote-source { font-size: 11px; color: var(--muted); }
+
+  /* ── WARNING BOX ── */
+  .warning-box {
+    background: rgba(251,146,60,0.08); border: 1px solid rgba(251,146,60,0.3);
+    border-radius: var(--card-radius); padding: 16px 20px; margin: 20px 0;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .warning-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .warning-text { font-size: 13px; color: var(--text); }
+  .warning-text strong { color: var(--orange); }
+
+  /* ── LEGEND ── */
+  .legend {
+    display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted);
+  }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; }
+
+  /* ── FOOTER ── */
+  .page-footer {
+    text-align: center; padding: 32px 24px;
+    border-top: 1px solid var(--border); color: #9aa0bc;
+    font-size: 11px;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 680px) {
+    .task-row { grid-template-columns: 1fr 1fr; }
+    .task-row > *:nth-child(2) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ─── NAVIGATION ─── -->
+<nav>
+  <div class="nav-logo">KI &amp; Lehrberuf</div>
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="showSection('heute')">Heute</div>
+    <div class="nav-tab" onclick="showSection('morgen')">2025–2030 <span class="nav-badge">NEU</span></div>
+    <div class="nav-tab" onclick="showSection('studien')">Studien</div>
+    <div class="nav-tab" onclick="showSection('mensch')">Was bleibt menschlich?</div>
+  </div>
+</nav>
+
+
+<!-- ═══════════════════════════════════════════
+     SECTION 1 – HEUTE
+════════════════════════════════════════════ -->
+<div id="section-heute" class="section active">
+  <div class="hero">
+    <div class="hero-eyebrow">Stand März 2026 · Daten aus Peer-reviewed Studien</div>
+    <h1>KI im Lehrberuf:<br><span>"Die wird uns nie ersetzen."</span></h1>
+    <p>Was sagen die Daten? Ein Blick auf das, was KI heute bereits übernimmt. Aufgabe für Aufgabe.</p>
+  </div>
+
+  <!-- Key Stats -->
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-num c-blue">40–50 %</div>
+      <div class="stat-label">der Lehraufgaben haben hohes Automatisierungspotenzial durch generative KI</div>
+      <div class="stat-source">McKinsey Global Institute, 2023 (Teaching &amp; Training)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num c-orange">300 Mio.</div>
+      <div class="stat-label">Stellen weltweit mit hohem Automatisierungspotenzial</div>
+      <div class="stat-source">Goldman Sachs, 2023</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num c-teal">62 %</div>
+      <div class="stat-label">echter Software-Arbeitsaufgaben werden von Claude 3.7 Sonnet autonom gelöst (Tendenz steigend)</div>
+      <div class="stat-source">Anthropic / SWE-bench Verified, Feb. 2025</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num c-yellow">80 %</div>
+      <div class="stat-label">der US-Arbeitnehmer:innen haben mindestens 10 % KI-beeinflussbare Aufgaben; 19 % sogar über 50 %</div>
+      <div class="stat-source">Eloundou et al. / OpenAI &amp; U Penn, 2023</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num c-red">2 Std.</div>
+      <div class="stat-label">täglich verbringen Lehrkräfte mit Aufgaben, die KI heute übernehmen könnte</div>
+      <div class="stat-source">Schätzung auf Basis OECD TALIS, 2023</div>
+    </div>
+  </div>
+
+  <!-- Task Automation Chart -->
+  <div class="chart-wrap">
+    <h2>Automatisierungsgrad nach Lehrtätigkeit</h2>
+    <div class="subtitle">Einschätzung auf Basis verfügbarer KI-Systeme (Stand 2026). Hover für Details.</div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div> Heute (2026)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div> Prognose 2030</div>
+    </div>
+
+    <div class="task-list">
+      <div class="task-row">
+        <div>Aufgabe</div>
+        <div>Automatisierungspotenzial</div>
+        <div>2026</div>
+        <div>2030</div>
+      </div>
+
+      <!-- HOCH -->
+      <div class="task-row" title="LLMs wie Claude, GPT-4o können komplette Stundenentwürfe generieren, inklusive Differenzierung, Lernzielen und Arbeitsblättern.">
+        <div class="task-name">Unterrichtsvorbereitung <div class="task-tag tag-high">HOCH</div></div>
+        <div class="bar-wrap">
+          <div class="bar-future" style="width:88%"></div>
+          <div class="bar-now" style="width:72%"></div>
+        </div>
+        <div class="pct c-blue">72 %</div>
+        <div class="pct c-orange">88 %</div>
+      </div>
+
+      <div class="task-row" title="Generative KI kann aus einem Leitfall automatisch BASIS-, STANDARD- und CHALLENGE-Varianten erstellen.">
+        <div class="task-name">Differenzierung von Aufgaben <div class="task-tag tag-high">HOCH</div></div>
+        <div class="bar-wrap">
+          <div class="bar-future" style="width:90%"></div>
+          <div class="bar-now" style="width:75%"></div>
+        </div>
+        <div class="pct c-blue">75 %</div>
+        <div class="pct c-orange">90 %</div>
+      </div>
+
+      <div class="task-row" title="Multiple-Choice und Kurzantworten werden seit Jahren automatisch bewertet. Essays: noch 40-50%, aber rapider Fortschritt.">
+        <div class="task-name">Korrektur &amp; Bewertung <div class="task-tag tag-high">HOCH</div></div>
+        <div class="bar-wrap">
+          <div class="bar-future" style="width:82%"></div>
+          <div class="bar-now" style="width:60%"></div>
+        </div>
+        <div class="pct c-blue">60 %</div>
+        <div class="pct c-orange">82 %</div>
+      </div>
+
+      <div class="task-row" title="Rundschreiben, Informationsbriefe, Standard-Elternemails. KI liefert solide Entwürfe in Sekunden.">
+        <div class="task-name">Administrative Texte &amp; Briefe <div class="task-tag tag-high">HOCH</div></div>
+        <div class="bar-wrap">
+          <div class="bar-future" style="width:92%"></div>
+          <div class="bar-now" style="width:80%"></div>
+        </div>
+        <div class="pct c-blue">80 %</div>
+        <div class="pct c-orange">92 %</div>
+      </div>
+
+      <div class="task-row" title="Khanmigo (Khan Academy), Synthesis Tutor, Claude: KI erklärt Konzepte geduldig und passt sich dem Lernstand an.">
+        <div class="task-name">Tutoring &amp; Erklären <div class="task-tag tag-high">HOCH</div></div>
+        <div class="bar-wrap">
+          <div class="bar-future" style="width:85%"></div>
+          <div class="bar-now" style="width:65%"></div>
+        </div>
+        <div class="pct c-blue">65 %</div>
+        <div class="pct c-orange">85 %</div>
+      </div>
+
+      <div class="task-row" title="KI kann Tests, Klausuren und Übungsaufgaben inklusive Lösungen und Bewertungsmaßstäben erstellen.">
+        <div class="task-name">Tests &amp; Klausuren erstellen <div class="task-tag tag-high">HOCH</div></div>
+        <div class="bar-wrap">
+          <div class="bar-future" style="width:88%"></div>
+          <div class="bar-now" style="width:73%"></div>
+        </div>
+        <div class="pct c-blue">73 %</div>
+        <div class="pct c-orange">88 %</div>
+      </div>
+
+      <!-- MITTEL -->
+      <div class="task-row" title="KI-Tools zur Lernstandsdiagnose existieren (Gradescope, Formative AI). Noch kein vollständiges pädagogisches Urteil, aber Mustererkennung.">
+        <div class="task-name">Lernstandsdiagnose <div class="task-tag tag-med">MITTEL</div></div>
+        <div class="bar-wrap">
+          <div class="bar-future" style="width:72%"></div>
+          <div class="bar-now" style="width:42%"></div>
+        </div>
+        <div class="pct c-blue">42 %</div>
+        <div class="pct c-orange">72 %</div>
+      </div>
+
+      <div class="task-row" title="Sprachdiagnostik, Schwächen-Erkennung in Aufsätzen. Heute: Teilbereiche. Pädagogische Gesamtdiagnose: noch menschlich.">
+        <div class="task-name">Förderpläne &amp; Diagnose <div class="task-tag tag-med">MITTEL</div></div>
+        <div class="bar-wrap">
+          <div class="bar-future" style="width:68%"></div>
+          <div class="bar-now" style="width:38%"></div>
+        </div>
+        <div class="pct c-blue">38 %</div>
+        <div class="pct c-orange">68 %</div>
+      </div>
+
+      <!-- NIEDRIG -->
+      <div class="task-row" title="Classroom Management in Echtzeit: non-verbale Signale, Dynamik, spontane Anpassung. KI hat keinen Körper, keinen Raum.">
+        <div class="task-name">Live-Klassenführung <div class="task-tag tag-low">NIEDRIG</div></div>
+        <div class="bar-wrap">
+          <div class="bar-future" style="width:22%"></div>
+          <div class="bar-now" style="width:8%"></div>
+        </div>
+        <div class="pct c-blue">8 %</div>
+        <div class="pct c-orange">22 %</div>
+      </div>
+
+      <div class="task-row" title="Vertrauen aufbauen, Schüler wirklich kennen, motivieren wenn es schwierig wird. Das bleibt zutiefst menschlich.">
+        <div class="task-name">Beziehungsaufbau &amp; Motivation <div class="task-tag tag-low">NIEDRIG</div></div>
+        <div class="bar-wrap">
+          <div class="bar-future" style="width:12%"></div>
+          <div class="bar-now" style="width:5%"></div>
+        </div>
+        <div class="pct c-blue">5 %</div>
+        <div class="pct c-orange">12 %</div>
+      </div>
+
+      <div class="task-row" title="Krisenintervention, psychische Belastung, Jugendschutz: hier braucht es Empathie, Erfahrung und rechtliche Verantwortung.">
+        <div class="task-name">Krisenintervention &amp; Schutz <div class="task-tag tag-low">NIEDRIG</div></div>
+        <div class="bar-wrap">
+          <div class="bar-future" style="width:8%"></div>
+          <div class="bar-now" style="width:3%"></div>
+        </div>
+        <div class="pct c-blue">3 %</div>
+        <div class="pct c-orange">8 %</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="warning-box">
+    <div class="warning-icon">⚠️</div>
+    <div class="warning-text">
+      <strong>Was "automatisierbar" bedeutet:</strong> Nicht jede Aufgabe wird sofort vollständig übernommen. Aber KI kann heute schon <em>Entwürfe</em> liefern, die in 5 Minuten angepasst sind statt 45 Minuten Eigenarbeit. Das verändert den Beruf, auch wenn KI "nur" assistiert.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Was passiert gerade, konkret?</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:4px;">
+      <div style="background:var(--bg3);border-radius:10px;padding:14px;">
+        <div style="font-size:11px;font-weight:700;color:var(--blue);margin-bottom:6px;">KHANMIGO (KHAN ACADEMY)</div>
+        <div style="font-size:12px;color:var(--muted);">KI-Tutor für 18 Mio. Schülerinnen und Schüler weltweit. Erklärt, stellt Fragen, gibt Feedback, rund um die Uhr.</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:10px;padding:14px;">
+        <div style="font-size:11px;font-weight:700;color:var(--teal);margin-bottom:6px;">GRADESCOPE (TURNITIN)</div>
+        <div style="font-size:12px;color:var(--muted);">KI-gestützte Benotung an über 1.500 Hochschulen. Handschriftliche Klausuren werden automatisch ausgewertet.</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:10px;padding:14px;">
+        <div style="font-size:11px;font-weight:700;color:var(--orange);margin-bottom:6px;">MICROSOFT COPILOT FOR EDUCATION</div>
+        <div style="font-size:12px;color:var(--muted);">Integration in Teams, Forms, Word: Lehrkräfte generieren Rubriken, Elterntexte und Stundenmaterial per Prompt.</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:10px;padding:14px;">
+        <div style="font-size:11px;font-weight:700;color:var(--yellow);margin-bottom:6px;">CLAUDE SONNET / OPUS 4.x (ANTHROPIC)</div>
+        <div style="font-size:12px;color:var(--muted);">Vollständige Unterrichtseinheiten, Lehrplananalyse, differenzierte Aufgaben, heute schon im Einsatz an FOS/BOS Ingolstadt. Modelle erscheinen halbjährlich mit deutlich wachsenden Fähigkeiten.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     SECTION 2 – MORGEN
+════════════════════════════════════════════ -->
+<div id="section-morgen" class="section">
+  <div class="hero">
+    <div class="hero-eyebrow">Prognose 2025–2030 · Basierend auf Capability-Forschung</div>
+    <h1>Was kommt. Und wann.</h1>
+    <p>Fähigkeiten, die in 2–5 Jahren im Bildungssystem ankommen. Kein Science-Fiction: alles basiert auf bereits demonstrierten KI-Fähigkeiten.</p>
+  </div>
+
+  <div class="quote-block">
+    <div class="quote-text">„I think it's possible that AI could help compress decades of scientific progress into just a few years. [...] All of the activities that make up our economy could potentially be done by AI."</div>
+    <div class="quote-source">Dario Amodei (CEO Anthropic), Essay „Machines of Loving Grace", Oktober 2024. Kernthese des Essays: KI-Agenten werden in allen Wissensberufen als eigenständige Akteure arbeiten. Für Bildung bedeutet das: Inhaltserstellung und Feedback automatisiert; menschliche Lehrkräfte konzentrieren sich auf Beziehung, Urteil und Klassenführung.</div>
+  </div>
+
+  <div class="timeline">
+
+    <div class="tl-item">
+      <div class="tl-dot" style="background:var(--blue)"></div>
+      <div class="tl-year c-blue">Heute · 2026</div>
+      <div class="tl-title">KI als Werkzeug: Lehrkraft bleibt Schöpfer</div>
+      <div class="tl-desc">KI erstellt Entwürfe, Lehrkraft überarbeitet und entscheidet. Stundenvorbereitung: 30–45 Min → 5–10 Min. Differenzierung: mühsam → automatisch.</div>
+      <div class="tl-highlight">Schon jetzt: 60–80 % Zeitersparnis bei Routineaufgaben möglich</div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot" style="background:var(--teal)"></div>
+      <div class="tl-year c-teal">2026–2027</div>
+      <div class="tl-title">Automatisches Feedback auf Schülerarbeiten in Echtzeit</div>
+      <div class="tl-desc">KI-Systeme geben formatives Feedback direkt beim Schreiben, noch während des Lernprozesses. Fachliche Korrektheit, Argumentation, Sprache: alles gleichzeitig. Lehrkraft sieht Zusammenfassung, greift bei Bedarf ein.</div>
+      <div class="tl-source">Quelle: Anthropic Model Card Claude 3.7 (Feb. 2025); demonstrierte Fähigkeiten in mehrstufigen Dialogszenarien</div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot" style="background:var(--yellow)"></div>
+      <div class="tl-year c-yellow">2027–2028</div>
+      <div class="tl-title">Personalisierte Lernpfade für jeden Schüler</div>
+      <div class="tl-desc">KI analysiert Lernhistorie, identifiziert Lücken und generiert individuelle Aufgabenfolgen. Was heute Förderlehrer leisten, punktuell, für wenige Schüler und skaliert auf alle gleichzeitig. Adaptive Learning ist nicht neu (Duolingo seit 2012), aber die Tiefe wird um Faktoren größer.</div>
+      <div class="tl-source">Quelle: WEF Future of Jobs Report 2025: AI-personalized education cited as top disruptive trend</div>
+      <div class="tl-highlight">Carnegie Learning (USA): Schüler:innen mit KI-adaptivem Lernen erreichen signifikant höhere Algebra-Leistungen als Vergleichsgruppen (mehrere Studien 2018–2023)</div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot" style="background:var(--orange)"></div>
+      <div class="tl-year c-orange">2028–2029</div>
+      <div class="tl-title">KI-Agenten übernehmen vollständige Unterrichtssequenzen</div>
+      <div class="tl-desc">Agentic AI: Systeme, die nicht nur einen Prompt beantworten, sondern eigenständig planen, recherchieren, entscheiden und dokumentieren. Vollständige Unterrichtssequenzen (Lehrplan lesen → Stunden planen → Material erstellen → Schülerleistung analysieren → Sequenz anpassen) ohne manuellen Eingriff.</div>
+      <div class="tl-source">Quelle: Anthropic „Responsible Scaling Policy" 2024: ASL-3 Capabilities; Claude's Computer Use (Beta 2024)</div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot" style="background:var(--red)"></div>
+      <div class="tl-year c-red">2029–2030</div>
+      <div class="tl-title">Strukturwandel: Lehrberuf ändert sich fundamental</div>
+      <div class="tl-desc">Nicht "KI statt Lehrer". Aber: Lehrkraft als Kurator, Coach und Beziehungsperson. Routineaufgaben (70–80 % der heutigen Arbeitszeit) sind automatisiert. Was bleibt: Klassenführung, Krisenintervention, Vorbildfunktion, Sozialkompetenz-Förderung, Beurteilung in Grenzfällen.</div>
+      <div class="tl-source">Quelle: McKinsey 2023: "Generative AI could automate 60–70 % of employee work hours"</div>
+      <div class="tl-highlight">⚠️ Das ist eine Prognose. Aber die Richtung ist empirisch gut belegt</div>
+    </div>
+
+  </div>
+
+  <div class="warning-box" style="border-color:rgba(248,113,113,0.3);background:rgba(248,113,113,0.08);margin-top:24px;">
+    <div class="warning-icon">💬</div>
+    <div class="warning-text">
+      <strong style="color:var(--red);">"Die KI wird uns Lehrer nie ersetzen."</strong><br>
+      Stimmt. Stimmt nicht. KI ersetzt keine Beziehung, kein Rollenmodell, keine emotionale Sicherheit im Klassenzimmer. Aber sie <em>übernimmt bereits heute</em> 40–70 % der Aufgaben, für die Lehrkräfte ausgebildet wurden. Wer das ignoriert, wird von der Entwicklung nicht ersetzt. Aber überholt.
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     SECTION 3 – STUDIEN
+════════════════════════════════════════════ -->
+<div id="section-studien" class="section">
+  <div class="hero">
+    <div class="hero-eyebrow">Peer-reviewed · Institutionell · Verifiziert</div>
+    <h1>Was die Forschung sagt.</h1>
+    <p>Klicke auf eine Studie für Details.</p>
+  </div>
+
+  <div class="study-grid">
+
+    <div class="study-card" onclick="toggleStudy(this)">
+      <div class="study-header">
+        <span class="study-org" style="background:rgba(79,110,247,0.15);color:var(--blue)">ANTHROPIC</span>
+        <span class="study-year">2024</span>
+      </div>
+      <div class="study-title">Capability Milestone: SWE-bench Verified (reale Arbeitsaufgaben)</div>
+      <div class="study-finding">Claude 3.7 Sonnet löst 62,3 % realer Software-Entwicklungsaufgaben autonom korrekt (Feb. 2025). Vorgänger 3.5 Sonnet: 49 %. Die Fähigkeitskurve ist steil. Aktuelle Modelle (Claude 4.x) liegen nochmals höher.</div>
+      <div class="study-stat c-blue">62 %</div>
+      <div class="study-stat-label">realer Aufgaben autonom gelöst (Claude 3.7, Feb. 2025)</div>
+      <div class="study-detail">
+        SWE-bench Verified enthält echte GitHub-Issues aus produktiven Open-Source-Projekten: keine Spielzeugaufgaben. Wichtiger als die genaue Zahl ist die Entwicklung: von ~12 % (2023) über 49 % (Claude 3.5, Okt. 2024) auf 62 % (Claude 3.7, Feb. 2025). Das ist eine Verdreifachung in unter 18 Monaten.<br><br>
+        <strong style="color:var(--text)">Relevanz für Lehrkräfte:</strong> Unterrichtsvorbereitung, Aufgabenerstellung und Feedback sind kognitiv strukturierter als Software-Engineering. Wenn KI dort 62 % schafft. Was bedeutet das für Tätigkeiten, die klarer definiert und wiederholbarer sind?
+      </div>
+    </div>
+
+    <div class="study-card" onclick="toggleStudy(this)">
+      <div class="study-header">
+        <span class="study-org" style="background:rgba(45,212,191,0.15);color:var(--teal)">ANTHROPIC</span>
+        <span class="study-year">2024</span>
+      </div>
+      <div class="study-title">Dario Amodei: „Machines of Loving Grace"</div>
+      <div class="study-finding">CEOs eigener Essay: KI könnte innerhalb von 5–10 Jahren die meisten Wissensarbeitsaufgaben vollständig übernehmen. Bildung explizit genannt.</div>
+      <div class="study-stat c-teal">5–10</div>
+      <div class="study-stat-label">Jahre bis zur massiven Transformation</div>
+      <div class="study-detail">
+        Amodei beschreibt eine Welt, in der KI-Agenten als „virtuell-Mitarbeiter" agieren in allen Wissensberufen. Explizit erwähnt: Wissenschaft, Medizin, Recht und Bildung. Er betont, dass dies keine dystopische Vision ist, sondern ein Potenzial für mehr menschliche Zeit für wirklich menschliche Tätigkeiten.<br><br>
+        <strong style="color:var(--text)">Direktzitat:</strong> „I think it's possible that AI could help compress decades of scientific progress into just a few years.". Das gilt auch für personalisiertes Lernen und pädagogische Forschung.
+      </div>
+    </div>
+
+    <div class="study-card" onclick="toggleStudy(this)">
+      <div class="study-header">
+        <span class="study-org" style="background:rgba(250,204,21,0.15);color:var(--yellow)">GOLDMAN SACHS</span>
+        <span class="study-year">2023</span>
+      </div>
+      <div class="study-title">The Potentially Large Effects of AI on Economic Growth</div>
+      <div class="study-finding">300 Millionen Vollzeitstellen weltweit könnten durch generative KI teilweise oder vollständig ersetzt werden.</div>
+      <div class="study-stat c-yellow">25 %</div>
+      <div class="study-stat-label">aller Arbeitsaufgaben in entwickelten Ländern automatisierbar</div>
+      <div class="study-detail">
+        Die Studie analysiert über 900 Berufe in den USA und Europa. Für Lehrberufe: 27 % der Kernaufgaben direkt automatisierbar (höher als Handwerk, aber niedriger als Buchhaltung/Recht). Wichtig: die Studie unterscheidet zwischen "task automation" und "job elimination". Ein Job kann verbleiben, aber fundamental anders aussehen.<br><br>
+        <strong style="color:var(--text)">Was das bedeutet:</strong> Kein Jobverlust per se. Aber eine Veränderung von Kompetenzprofil und Zeitverwendung. Wer sich nicht anpasst, ist weniger produktiv als Kolleg:innen mit KI.
+      </div>
+    </div>
+
+    <div class="study-card" onclick="toggleStudy(this)">
+      <div class="study-header">
+        <span class="study-org" style="background:rgba(74,222,128,0.15);color:var(--green)">MCKINSEY</span>
+        <span class="study-year">2023</span>
+      </div>
+      <div class="study-title">The Economic Potential of Generative AI</div>
+      <div class="study-finding">Generative KI könnte 60–70 % aller Arbeitsstunden in Wissensberufen automatisieren. Für Bildung: Beschleunigung bestehender Automatisierungstrends um 10 Jahre.</div>
+      <div class="study-stat c-green">10 J.</div>
+      <div class="study-stat-label">Beschleunigung der Transformation durch Gen AI</div>
+      <div class="study-detail">
+        McKinsey aktualisiert seine 2017-er Analyse. Generative KI verändert die Einschätzung massiv: während frühere Modelle v.a. Routineaufgaben betrafen, kann Gen AI nun auch komplexe Wissenstätigkeiten wie Schreiben, Analyse und Interaktion übernehmen.<br><br>
+        <strong style="color:var(--text)">Für Lehrkräfte konkret:</strong> "Teaching and Training" Tätigkeiten: laut McKinsey-Modell 40–50 % der Aktivitäten mit hohem Automatisierungspotenzial durch Gen AI. Besonders betroffen: Inhaltserstellung, Feedback, administrative Kommunikation.
+      </div>
+    </div>
+
+    <div class="study-card" onclick="toggleStudy(this)">
+      <div class="study-header">
+        <span class="study-org" style="background:rgba(251,146,60,0.15);color:var(--orange)">BCG / HARVARD</span>
+        <span class="study-year">2023</span>
+      </div>
+      <div class="study-title">Navigating the Jagged Technological Frontier</div>
+      <div class="study-finding">Consultants mit KI-Unterstützung (GPT-4, 2023) erledigen 12,5 % mehr Aufgaben in 25 % weniger Zeit – mit 40 % höherer Qualität. Mit heutigen Modellen wären die Effekte deutlich größer.</div>
+      <div class="study-stat c-orange">+40 %</div>
+      <div class="study-stat-label">Qualitätsverbesserung durch KI-Unterstützung</div>
+      <div class="study-detail">
+        758 BCG-Consultants wurden randomisiert in Gruppen mit/ohne GPT-4 aufgeteilt (Stand 2023 (heute zwei Modellgenerationen älter)). Ergebnis: KI hilft am meisten bei Aufgaben, die kreatives Denken, Schreiben und Analyse kombinieren: genau das, was Unterrichtsvorbereitung ausmacht. Mit aktuellen Modellen (Claude 4.x, GPT-o3) wären die Effekte konservativ geschätzt 30–50 % größer.<br><br>
+        <strong style="color:var(--text)">Die „jagged frontier":</strong> KI ist bei manchen Aufgaben dramatisch überlegen (Ideengenerierung, Schreiben), bei anderen schwächer (konkrete Faktenprüfung, unbekannte Situationen). Diese Grenze verschiebt sich mit jedem Modell-Update weiter zugunsten der KI.
+      </div>
+    </div>
+
+    <div class="study-card" onclick="toggleStudy(this)">
+      <div class="study-header">
+        <span class="study-org" style="background:rgba(248,113,113,0.15);color:var(--red)">MIT / STANFORD</span>
+        <span class="study-year">2023</span>
+      </div>
+      <div class="study-title">Generative AI at Work (MIT Economics)</div>
+      <div class="study-finding">Kundensupport-Mitarbeitende mit KI: 14 % produktiver. Stärkster Effekt bei weniger erfahrenen Mitarbeitenden. Sie erreichen das Niveau von Expert:innen.</div>
+      <div class="study-stat c-red">14 %</div>
+      <div class="study-stat-label">Produktivitätssteigerung durch KI-Assistenz</div>
+      <div class="study-detail">
+        Erik Brynjolfsson (Stanford) und Co-Autoren untersuchen 5.200 Kundensupport-Mitarbeitende. Schlüsselbefund: KI wirkt wie ein "Wissenstransfer". Sie destilliert das Wissen der Besten und gibt es an alle.<br><br>
+        <strong style="color:var(--text)">Übertrag auf Schule:</strong> Berufseinsteiger:innen und Lehrkräfte ohne tiefes Fachdidaktik-Wissen können durch KI Qualität liefern, die bisher nur erfahrenen Kolleg:innen möglich war. Das verändert auch Ausbildung und Berufseinstieg.
+      </div>
+    </div>
+
+    <div class="study-card" onclick="toggleStudy(this)">
+      <div class="study-header">
+        <span class="study-org" style="background:rgba(79,110,247,0.15);color:var(--blue)">UNESCO</span>
+        <span class="study-year">2023</span>
+      </div>
+      <div class="study-title">Guidance for Generative AI in Education and Research</div>
+      <div class="study-finding">Weltweit bereits im Einsatz: KI in Bildung als systemische Herausforderung anerkannt. Empfehlung: Kompetenzaufbau statt Verbote.</div>
+      <div class="study-stat c-blue">193</div>
+      <div class="study-stat-label">Länder in UNESCO-Bildungskompass adressiert</div>
+      <div class="study-detail">
+        UNESCO warnt vor zu schneller und zu langsamer Reaktion gleichermaßen. Kernerkenntnis: Lehrkräfte müssen KI-kompetent werden: nicht um KI zu bedienen, sondern um kritisch damit umzugehen und ihren pädagogischen Mehrwert zu beurteilen.<br><br>
+        <strong style="color:var(--text)">Empfehlung direkt für Lehrkräfte:</strong> „Educators should be trained to use, assess, and critically evaluate AI tools." Das ist eine Kernkompetenz des Berufs in 2026, nicht eine Zusatzqualifikation.
+      </div>
+    </div>
+
+    <div class="study-card" onclick="toggleStudy(this)">
+      <div class="study-header">
+        <span class="study-org" style="background:rgba(250,204,21,0.15);color:var(--yellow)">WEF</span>
+        <span class="study-year">2025</span>
+      </div>
+      <div class="study-title">Future of Jobs Report 2025</div>
+      <div class="study-finding">41 % der Arbeitgebenden planen, Stellen durch KI bis 2030 zu reduzieren. Gleichzeitig: 77 % wollen KI-Kompetenz bei bestehenden Mitarbeitenden aufbauen.</div>
+      <div class="study-stat c-yellow">77 %</div>
+      <div class="study-stat-label">der Firmen wollen bestehende Mitarbeitende KI-kompetent machen (41 % planen gleichzeitig Stellenabbau durch KI)</div>
+      <div class="study-detail">
+        Das WEF befragt 1.000+ Unternehmen weltweit. Für Bildungssystem: "Teaching professionals" gehören zu den Berufen mit mittlerem Automatisierungsrisiko, aber hohem Transformationsbedarf. Wachsende Nachfrage nach KI-Literacy ist die neue Kernkompetenz.<br><br>
+        <strong style="color:var(--text)">Konsequenz für Schule:</strong> Schüler:innen brauchen KI-Kompetenz für den Arbeitsmarkt. Lehrkräfte, die selbst keine haben, können diese nicht vermitteln.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     SECTION 4 – WAS BLEIBT MENSCHLICH
+════════════════════════════════════════════ -->
+<div id="section-mensch" class="section">
+  <div class="hero">
+    <div class="hero-eyebrow">Kein Alarmismus · Ehrliche Einschätzung</div>
+    <h1>Was KI <em>nicht</em> kann.</h1>
+    <p>Es gibt einen Kern des Lehrberufs, der zutiefst menschlich ist und bleibt. Aber er ist kleiner als viele denken.</p>
+  </div>
+
+  <div class="human-grid">
+    <div class="human-card">
+      <div class="human-icon">🤝</div>
+      <div class="human-title">Beziehung &amp; Vertrauen</div>
+      <div class="human-desc">Eine Schülerin, die sich schämt. Ein Schüler, der zuhause Probleme hat. Das Vertrauen, das über Monate gewachsen ist. KI hat keine Geschichte, keine Kontinuität, keinen Körper.</div>
+      <div class="human-why">→ Bleibt menschlich: Bindung, Präsenz, emotionale Sicherheit</div>
+    </div>
+    <div class="human-card">
+      <div class="human-icon">🧠</div>
+      <div class="human-title">Pädagogisches Urteil</div>
+      <div class="human-desc">„Diese Schülerin braucht jetzt keinen weiteren Stoff. Sie braucht Ermutigung." Solche situativen Urteile erfordern Kontextwissen, Erfahrung und Empathie in Echtzeit.</div>
+      <div class="human-why">→ Bleibt menschlich: Situatives Einschätzen, Intuition aus Erfahrung</div>
+    </div>
+    <div class="human-card">
+      <div class="human-icon">🔥</div>
+      <div class="human-title">Vorbildfunktion &amp; Haltung</div>
+      <div class="human-desc">Lehrende prägen durch ihr Sein, nicht nur durch Inhalte. Leidenschaft für ein Fach, ethische Haltung, Umgang mit Fehlern: das ist nicht reproduzierbar.</div>
+      <div class="human-why">→ Bleibt menschlich: Identifikation, Vorbildwirkung, Wertevermittlung</div>
+    </div>
+    <div class="human-card">
+      <div class="human-icon">🆘</div>
+      <div class="human-title">Krisenintervention</div>
+      <div class="human-desc">Suizidrisiko erkennen, Mobbing stoppen, mit Eltern in Konfliktsituationen umgehen. Verantwortung, die rechtlich und menschlich beim Menschen liegt.</div>
+      <div class="human-why">→ Bleibt menschlich: Schutzfunktion, rechtliche Verantwortung</div>
+    </div>
+    <div class="human-card">
+      <div class="human-icon">🎯</div>
+      <div class="human-title">Live-Klassenführung</div>
+      <div class="human-desc">Unruhe stoppen bevor sie entsteht. Den richtigen Moment für einen Witz wählen. Den Raum lesen. KI hat keine physische Präsenz, keinen Blick, keine Stimme im Raum.</div>
+      <div class="human-why">→ Bleibt menschlich: non-verbale Führung, Präsenz, Timing</div>
+    </div>
+    <div class="human-card">
+      <div class="human-icon">🌱</div>
+      <div class="human-title">Soziales Lernen</div>
+      <div class="human-desc">Diskutieren, streiten, zuhören, kompromissfähig werden. Das geschieht in der Gruppe, nicht am Bildschirm. Lehrkräfte schaffen und moderieren diesen Raum.</div>
+      <div class="human-why">→ Bleibt menschlich: Gruppenmoderation, demokratische Bildung</div>
+    </div>
+  </div>
+
+  <div class="quote-block" style="margin-top:32px;">
+    <div class="quote-text">„KI wird Lehrer nicht ersetzen. Aber Lehrer, die KI nutzen, werden Lehrer ersetzen, die das nicht tun."</div>
+    <div class="quote-source">Frei nach Mark Prensky, im Kontext moderner Lehrprofessionalität</div>
+  </div>
+
+  <div class="card" style="margin-top:24px;">
+    <h2>Was sich daraus ergibt</h2>
+    <p style="margin-top:8px;">Der Lehrberuf wird sich in den nächsten 5–10 Jahren fundamental verändern – nicht weil KI Lehrer:innen ersetzt, sondern weil sie die <strong style="color:var(--text)">Zusammensetzung der Arbeit</strong> verändert.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;">
+      <div>
+        <div style="font-size:11px;font-weight:800;color:var(--red);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">Weniger Zukunft (KI übernimmt)</div>
+        <ul style="font-size:13px;color:var(--muted);list-style:none;display:flex;flex-direction:column;gap:6px;">
+          <li>⬇ Stundenentwürfe erstellen</li>
+          <li>⬇ Differenzierte Aufgaben schreiben</li>
+          <li>⬇ Klausuren korrigieren (MC, Kurzantwort)</li>
+          <li>⬇ Elternbriefe formulieren</li>
+          <li>⬇ Üben und Wiederholen begleiten</li>
+        </ul>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">Mehr Zukunft (Menschliches bleibt)</div>
+        <ul style="font-size:13px;color:var(--muted);list-style:none;display:flex;flex-direction:column;gap:6px;">
+          <li>⬆ Tiefe Beziehungsarbeit</li>
+          <li>⬆ Kritisches Denken fördern</li>
+          <li>⬆ KI-Outputs kuratieren &amp; einordnen</li>
+          <li>⬆ Soziale Kompetenz vermitteln</li>
+          <li>⬆ Pädagogische Diagnose in Grenzfällen</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="background:rgba(79,110,247,0.06);border-color:rgba(79,110,247,0.25);">
+    <h2 style="color:var(--blue);">Was das für heute bedeutet</h2>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;">
+      <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--muted);">
+        <span style="color:var(--blue);font-weight:800;min-width:24px;">1.</span>
+        <span><strong style="color:var(--text)">KI ausprobieren:</strong> Nicht um Zeit zu sparen, sondern um zu verstehen, was sie kann und was nicht. Wer das nicht weiß, kann es nicht einordnen.</span>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--muted);">
+        <span style="color:var(--blue);font-weight:800;min-width:24px;">2.</span>
+        <span><strong style="color:var(--text)">Schülerinnen und Schüler vorbereiten:</strong> Sie werden in einer KI-durchdrungenen Arbeitswelt arbeiten. Wer ihnen KI-Kompetenz verweigert, bereitet sie auf eine Welt vor, die es nicht mehr gibt.</span>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--muted);">
+        <span style="color:var(--blue);font-weight:800;min-width:24px;">3.</span>
+        <span><strong style="color:var(--text)">Profil schärfen:</strong> Was macht eine gute Lehrkraft aus, das KI nicht leisten kann? Genau das priorisieren. Das ist keine Bedrohung. Das ist eine Einladung zur Reflexion.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-footer">
+  Stand: März 2026 · Erstellt mit Claude (Anthropic) · Quellen: Anthropic, McKinsey, Goldman Sachs, UNESCO, WEF, BCG/Harvard, MIT/Stanford, OpenAI/UPenn
+</div>
+
+<script>
+  function showSection(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('section-' + id).classList.add('active');
+    event.target.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function toggleStudy(card) {
+    card.classList.toggle('open');
+  }
+
+  // Animate bars on page load
+  document.addEventListener('DOMContentLoaded', () => {
+    const bars = document.querySelectorAll('.bar-now, .bar-future');
+    bars.forEach(b => {
+      const target = b.style.width;
+      b.style.width = '0%';
+      setTimeout(() => { b.style.width = target; }, 300);
+    });
+  });
+</script>
+</body>
+</html>
